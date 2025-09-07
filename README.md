@@ -50,15 +50,11 @@ pip install opencv-python numpy kociemba
 
 ### Running the Application
 
-#### Option 1: Run the modular version (recommended)
 ```bash
 python -m rubiks_cv.main
 ```
 
-#### Option 2: Run the original single-file version
-```bash
-python Main.py
-```
+
 
 ### Usage Instructions
 
