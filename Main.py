@@ -1,20 +1,22 @@
+from collections import OrderedDict
+from math import cos, pi, sin
+
 import cv2
 import kociemba
 import numpy as np
-from math import sin, cos, pi
-from collections import OrderedDict
 
 IMG_WIDTH = 640
 IMG_HEIGHT = 360
 IMG_CENTER = (IMG_WIDTH // 2, IMG_HEIGHT // 2)
 COLORS = ["white", "yellow", "blue", "red", "green", "orange"]
-colour_ranges = {'blue': (np.array([70, 100, 220]), np.array([120, 255, 255])),
-                 'red': (np.array([110, 120, 150]), np.array([180, 255, 255])),
-                 'green': (np.array([45, 130, 60]), np.array([70, 255, 255])),
-                 'orange': (np.array([0, 175, 150]), np.array([25, 255, 255])),
-                 'yellow': (np.array([20, 130, 60]), np.array([50, 255, 255])),
-                 'white': (np.array([0, 0, 0]), np.array([180, 80, 255]))
-                 }
+colour_ranges = {
+    "blue": (np.array([70, 100, 220]), np.array([120, 255, 255])),
+    "red": (np.array([110, 120, 150]), np.array([180, 255, 255])),
+    "green": (np.array([45, 130, 60]), np.array([70, 255, 255])),
+    "orange": (np.array([0, 175, 150]), np.array([25, 255, 255])),
+    "yellow": (np.array([20, 130, 60]), np.array([50, 255, 255])),
+    "white": (np.array([0, 0, 0]), np.array([180, 80, 255])),
+}
 
 
 def color_to_letter(color):
@@ -25,7 +27,7 @@ def color_to_letter(color):
         "white": "U",
         "yellow": "D",
         "red": "L",
-        "orange": "R"
+        "orange": "R",
     }
     # If the given color is listed in the dictionary, the method returns the corresponding letter.
     if color in color_letter_map:
@@ -61,10 +63,16 @@ def parse_turn(turn_str):
 class Cube:
     # Initialize the Cube class
     def __init__(self):
-        empty_face = np.empty([3, 3], '<U6')
+        empty_face = np.empty([3, 3], "<U6")
         # Create an empty 3x3 numpy array to represent an empty face of the cube
-        self.state = {"white": empty_face, "orange": empty_face, "blue": empty_face,
-                      "yellow": empty_face, "red": empty_face, "green": empty_face}
+        self.state = {
+            "white": empty_face,
+            "orange": empty_face,
+            "blue": empty_face,
+            "yellow": empty_face,
+            "red": empty_face,
+            "green": empty_face,
+        }
         # Create an empty 3x3 numpy array to represent an empty face of the cube
 
     def save_face(self, color, face):
@@ -77,7 +85,7 @@ class Cube:
 
     def get_solution(self):
         # Initialize an empty string to store the cube's current state
-        state_str = ''
+        state_str = ""
         for color in self.state:
             # Get 2D array representation of current face
             face = self.state[color]
@@ -409,7 +417,7 @@ def detection_completed(face):
 
 
 def initialize_face():
-    return np.full((3, 3), "init", dtype='<U6')
+    return np.full((3, 3), "init", dtype="<U6")
 
 
 def parents_inside_face(contour_array, hierarchy_array, index, contour_face):
@@ -430,7 +438,7 @@ def get_masks(img):
     hsv_img = hsv_img.astype(np.uint8)  # Convert to uint8 for NumPy operations
     masks = []
     # Generate a mask for each color range
-    for color, (lower, upper) in colour_ranges.items():
+    for _color, (lower, upper) in colour_ranges.items():
         mask = cv2.inRange(hsv_img, np.array(lower), np.array(upper))
         masks.append(mask)
     return masks
@@ -453,7 +461,7 @@ def get_instruction_text(color):
         "green": "white",
         "orange": "white",
         "white": "green",
-        "yellow": "blue"
+        "yellow": "blue",
     }
     # Return a string representing the instruction text for the given color
     return f"Show the {color} centered face with {center_facing_up[color]} center facing up"
@@ -471,7 +479,9 @@ def draw_text(img, text, position):
     text_width, text_height = text_size
     text_position = point_type_converter((text_x, text_y + 1.2 * text_height))
     background_top_left = (text_x, text_y)
-    background_bottom_right = point_type_converter((text_x + text_width, text_y + 1.5 * text_height))
+    background_bottom_right = point_type_converter(
+        (text_x + text_width, text_y + 1.5 * text_height)
+    )
 
     cv2.rectangle(img, background_top_left, background_bottom_right, background_color, -1)
     cv2.putText(img, text, text_position, font_face, font_scale, text_color, font_thickness)
@@ -584,8 +594,13 @@ def find_face_and_get_centers(img, margin=20):
                     piece_center_x = int(piece_center_x)
                     piece_center_y = int(piece_center_y)
                     # Draw a circle at each piece center on the image
-                    img = cv2.circle(img, (piece_center_x, piece_center_y),
-                                     radius=2, color=(0, 0, 255), thickness=-1)
+                    img = cv2.circle(
+                        img,
+                        (piece_center_x, piece_center_y),
+                        radius=2,
+                        color=(0, 0, 255),
+                        thickness=-1,
+                    )
             # Return the flag indicating a face is found, bounding box, and piece centers
             return True, bounding_box, piece_centers
 
@@ -652,21 +667,30 @@ def detect_face(video, target_center_color):
                                         relative_area = contour_area / face_area
                                         previous_area = piece_relative_areas[row][col_reversed]
 
-                                        if (relative_area <= previous_area and
-                                                not parents_inside_face(contours, hierarchy,
-                                                                        contour_index, face_contour)):
+                                        if (
+                                            relative_area <= previous_area
+                                            and not parents_inside_face(
+                                                contours, hierarchy, contour_index, face_contour
+                                            )
+                                        ):
                                             if row == 1 and col == 1:
                                                 if current_face[row][col] != color:
                                                     current_face = initialize_face()
                                                     piece_relative_areas = initialize_areas()
                                                     piece_contours_info = OrderedDict(
-                                                        reversed(list(piece_contours_info.items())))
+                                                        reversed(list(piece_contours_info.items()))
+                                                    )
                                                 if color == target_center_color or is_face_verified:
                                                     current_face[row][col] = color
                                                     piece_relative_areas[row][col] = relative_area
-                                            elif current_face[1][1] == target_center_color or is_face_verified:
+                                            elif (
+                                                current_face[1][1] == target_center_color
+                                                or is_face_verified
+                                            ):
                                                 current_face[row][col_reversed] = color
-                                                piece_relative_areas[row][col_reversed] = relative_area
+                                                piece_relative_areas[row][
+                                                    col_reversed
+                                                ] = relative_area
 
             if detection_completed(current_face) and not is_face_detected:
                 print_mirrored_face(current_face)
@@ -738,16 +762,16 @@ def detect_face(video, target_center_color):
         if not is_face_verified:
             draw_face(frame, current_face)
 
-        cv2.imshow('CUBE SOLVER', frame)
+        cv2.imshow("CUBE SOLVER", frame)
         pressed_key = cv2.waitKey(1)
 
-        if pressed_key == ord('q'):
+        if pressed_key == ord("q"):
             print("the program has been closed")
             return "quit", None
-        if pressed_key == ord('y') and is_face_detected:
+        if pressed_key == ord("y") and is_face_detected:
             verified_face = current_face.copy()
             is_face_verified = True
-        if pressed_key == ord('n'):
+        if pressed_key == ord("n"):
             return "restart", current_face
 
 
@@ -823,7 +847,7 @@ def draw_face(img, face):
         "yellow": (0, 255, 255),
         "white": (255, 255, 255),
         "gray": (90, 90, 90),
-        "black": (0, 0, 0)
+        "black": (0, 0, 0),
     }
     # Define the upper left point origin of the 3x3 face to be drawn
     origin_face = (500, 40)
@@ -857,9 +881,9 @@ def execute_turn(video, turn, previous_center_color, is_last_turn):
     is_solved = False
     # Extract the first character of the turn
     turn_letter = turn[0]
-    if turn_letter == 'U' or turn_letter == 'D':
+    if turn_letter == "U" or turn_letter == "D":
         valid_center_colors = ["green", "red"]
-    elif turn_letter == 'R' or turn_letter == 'L':
+    elif turn_letter == "R" or turn_letter == "L":
         valid_center_colors = ["green"]
     else:
         valid_center_colors = ["red"]
@@ -909,9 +933,12 @@ def execute_turn(video, turn, previous_center_color, is_last_turn):
                                     if cv2.pointPolygonTest(contour, piece_center, False) == 1:
                                         relative_area = contour_area / face_area
                                         previous_area = piece_relative_areas[row][col_reversed]
-                                        if (relative_area <= previous_area and
-                                                not parents_inside_face(contours, hierarchy,
-                                                                        contour_index, face_contour)):
+                                        if (
+                                            relative_area <= previous_area
+                                            and not parents_inside_face(
+                                                contours, hierarchy, contour_index, face_contour
+                                            )
+                                        ):
                                             if row == 1 and col == 1:
                                                 if detected_face[row][col] != color:
                                                     detected_face = initialize_face()
@@ -921,7 +948,9 @@ def execute_turn(video, turn, previous_center_color, is_last_turn):
                                                     piece_relative_areas[row][col] = relative_area
                                             elif detected_face[1][1] in ["red", "green"]:
                                                 detected_face[row][col_reversed] = color
-                                                piece_relative_areas[row][col_reversed] = relative_area
+                                                piece_relative_areas[row][
+                                                    col_reversed
+                                                ] = relative_area
                 if detection_completed(detected_face):
                     if faces_match(detected_face, face_before_turn):
                         draw_arrows(frame, turn, detected_piece_centers)
@@ -930,11 +959,15 @@ def execute_turn(video, turn, previous_center_color, is_last_turn):
                             return "completed", current_center_color
                         else:
                             is_solved = True
-                    elif (faces_match(detected_face, green_face_before_turn) and
-                          current_center_color == "red"):
+                    elif (
+                        faces_match(detected_face, green_face_before_turn)
+                        and current_center_color == "red"
+                    ):
                         draw_arrows(frame, "y", detected_piece_centers)
-                    elif (faces_match(detected_face, red_face_before_turn) and
-                          current_center_color == "green"):
+                    elif (
+                        faces_match(detected_face, red_face_before_turn)
+                        and current_center_color == "green"
+                    ):
                         draw_arrows(frame, "y'", detected_piece_centers)
                         # If the cube is solved, display a completion message
                         # and wait for the 'q' key to be pressed to finish
@@ -942,17 +975,20 @@ def execute_turn(video, turn, previous_center_color, is_last_turn):
         else:
             draw_text(frame, "THE CUBE IS SOLVED!", position=(250, 10))
             draw_text(frame, "Press 'q' to close the window.", position=(170, 35))
-        cv2.imshow('CUBE SOLVER', frame)
+        cv2.imshow("CUBE SOLVER", frame)
         pressed_key = cv2.waitKey(1)
-        if pressed_key == ord('q'):
+        if pressed_key == ord("q"):
             return "quit", None
 
 
 # Function to reformat the solution string. If a turn operation is denoted with '2' at the end (meaning it has to be
 # performed twice), it duplicates that operation in the list.
 def reform_solution(solution_str):
-    return [turn[0] if len(turn) > 1 and turn[1] == "2" else turn for turn in solution_str.split() for _ in
-            range(2 if len(turn) > 1 and turn[1] == "2" else 1)]
+    return [
+        turn[0] if len(turn) > 1 and turn[1] == "2" else turn
+        for turn in solution_str.split()
+        for _ in range(2 if len(turn) > 1 and turn[1] == "2" else 1)
+    ]
 
 
 # This function solves the Rubik's cube by executing each turn operation in the solution list
@@ -960,7 +996,7 @@ def solve_cube(video):
     solution = reform_solution(cube.get_solution())
     previous_center_color = "none"
     for i, turn in enumerate(solution):
-        last_turn = (i == len(solution) - 1)
+        last_turn = i == len(solution) - 1
         cmd, previous_center_color = execute_turn(video, turn, previous_center_color, last_turn)
 
         if cmd in ["quit", "failed"]:
