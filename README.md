@@ -64,33 +64,22 @@ rubiks_cv/
 2) Once the user has correctly shown all 6 faces of the cube to the webcam, the state of the cube has been recorded and with the help of the kociemba library the moves required to solve the scrambled cube are calculated.
 3) These moves are then displayed on the cube one by one and once the user has followed all the displayed instructions the Rubik's cube would have been solved.
 
-<!-- Responsive pipeline row with SVG arrows -->
-<div style="display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 20px; margin: 20px 0;">
+<!-- Vertical pipeline with titles on top -->
+<div style="text-align: center; margin: 20px 0;">
 
-   <div style="text-align: center; flex: 0 0 auto;">
+   <div style="margin-bottom: 30px;">
+     <h3 style="margin-bottom: 10px;">1) Detect faces</h3>
      <img src="assets/image58.png" width="280" alt="1) Detect faces" style="display: block; margin: 0 auto;" />
-     <b style="display: block; margin-top: 8px;">1) Detect faces</b>
    </div>
 
-   <!-- right arrow SVG -->
-   <svg width="40" height="40" viewBox="0 0 24 24" style="flex-shrink: 0;">
-     <path d="M8 4l8 8-8 8" fill="none" stroke="currentColor" stroke-width="2"
-           stroke-linecap="round" stroke-linejoin="round"/>
-   </svg>
-
-   <div style="text-align: center; flex: 0 0 auto;">
+   <div style="margin-bottom: 30px;">
+     <h3 style="margin-bottom: 10px;">2) Apply Moves</h3>
      <img src="assets/image32.png" width="280" alt="2) Apply Moves" style="display: block; margin: 0 auto;" />
-     <b style="display: block; margin-top: 8px;">2) Apply Moves</b>
    </div>
 
-   <svg width="40" height="40" viewBox="0 0 24 24" style="flex-shrink: 0;">
-     <path d="M8 4l8 8-8 8" fill="none" stroke="currentColor" stroke-width="2"
-           stroke-linecap="round" stroke-linejoin="round"/>
-   </svg>
-
-   <div style="text-align: center; flex: 0 0 auto;">
+   <div style="margin-bottom: 30px;">
+     <h3 style="margin-bottom: 10px;">3) Solved Cube</h3>
      <img src="assets/image12.png" width="280" alt="3) Solved Cube" style="display: block; margin: 0 auto;" />
-     <b style="display: block; margin-top: 8px;">3) Solved Cube</b>
    </div>
 
 </div>
