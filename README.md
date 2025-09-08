@@ -158,4 +158,4 @@ colour_ranges = {
 
 - **Camera not working**: Ensure your webcam is not being used by another application
 - **Poor color detection**: Adjust the HSV ranges in `config.py` for your lighting conditions
-- **Qt platform plugin error**: This is a common OpenCV issue on Linux and doesn't affect functionality
+
