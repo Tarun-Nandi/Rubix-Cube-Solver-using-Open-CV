@@ -1,7 +1,47 @@
 # Rubik's Cube Solver using OpenCV
 
-## About The Project
-The application leverages your webcam to identify the distinct colours on each face of the cube. Then it utilizes augmented reality to showcase the necessary moves to solve the scrambled cube. After each move, the subsequent move is accurately displayed on the corresponding side of the cube. Additionally, a 2D representation of the cube's scrambled state is presented after scanning each face, aiding users in comprehending the current state of the cube. Ultimately, the project aims to enable any user to solve the cube swiftly, even without prior knowledge of its notation.
+## About the Project
+
+This is a real-time Rubik’s Cube solver built with OpenCV:
+
+- **Detects** a cube face from a webcam feed and locates the 3×3 grid of facelets.
+- **Classifies colors** on each face (HSV-based in this version) and reconstructs the full cube state.
+- **Solves** the cube using the Kociemba two-phase algorithm.
+- **Guides the user** with an augmented overlay (arrows/2D net) so anyone can follow the moves without knowing notation.
+
+
+
+## Computer Vision & Geometry Used
+
+**1) Face proposal (square detection)**
+- Convert to HSV and threshold a broad “bright card” range to isolate the cube face background.
+- Extract **contours** and fit a minAreaRect to get a rotated bounding box.
+- Filter by **area**, **aspect ratio**, **rotation angle**, and **rectangle-likeness** (point-in-polygon margin test).
+- Compute a stable, image-space **3×3 grid of facelet centers** from the box geometry.
+
+**2) Color segmentation (per frame)**
+- Convert full frame to HSV.
+- Build binary **masks** for each color using predefined HSV ranges (see config.py).
+- Find contours in each color mask and associate them to the nearest **predicted facelet centers**.
+- Use **relative area heuristics** and **parent/child contour checks** to avoid picking borders/highlights.
+
+**3) Face verification & state assembly**
+- For each face: interactive verification (y/n) to lock a clean read.
+- Save face colors into a 3×3 grid per face; mirror where needed for screen alignment.
+- Concatenate the six faces into the 54-character **Kociemba string** in the expected order.
+
+**4) Solving & AR guidance**
+- Run kociemba.solve(state) to obtain a move sequence.
+- Draw **on-screen arrows** (U/D/L/R/F/B and whole-cube x/y turns) aligned with the detected facelet grid.
+- Show a synchronized **2D net** of the cube so users see progress after each move.
+
+**Design choices & trade-offs**
+- HSV thresholds are **fast and transparent**, and work well under neutral lighting.
+- Geometric gating (area/angle/rectangularity) reduces false positives but can be strict at extreme tilts.
+- Verification keeps the live loop robust without adding heavy ML.
+- Future work: homography rectification before sampling, per-session color **calibration/centroids**, periodicity (“gridness”) scoring, and optional ArUco fallback for harsh lighting.
+
+
 
 ## Project Structure
 The project has been refactored into a modular package structure for better maintainability:
@@ -20,13 +60,46 @@ rubiks_cv/
 
 ## How the Cube-Solver works
 1) The application first prompts the user to show a certain colour-centred face to the camera where the colours of each of the smaller facelets that make up the face are recorded. This is done using a range of masks that filter out a specific colour that is within a predefined set of HSV values.
-
-    ![image](https://github.com/user-attachments/assets/fa05e602-4351-4370-8143-88e7ab4730a7)
   
 2) Once the user has correctly shown all 6 faces of the cube to the webcam, the state of the cube has been recorded and with the help of the kociemba library the moves required to solve the scrambled cube are calculated.
 3) These moves are then displayed on the cube one by one and once the user has followed all the displayed instructions the Rubik's cube would have been solved.
 
-   ![image](https://github.com/user-attachments/assets/e46700a0-ab57-46b5-80ad-ab2012c1010c)  ![image](https://github.com/user-attachments/assets/10412065-f1ab-49f8-8793-efe524162e96)
+<!-- Responsive pipeline row with SVG arrows -->
+<div style="display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 20px; margin: 20px 0;">
+
+   <div style="text-align: center; flex: 0 0 auto;">
+     <img src="assets/image58.png" width="280" alt="1) Detect faces" style="display: block; margin: 0 auto;" />
+     <b style="display: block; margin-top: 8px;">1) Detect faces</b>
+   </div>
+
+   <!-- right arrow SVG -->
+   <svg width="40" height="40" viewBox="0 0 24 24" style="flex-shrink: 0;">
+     <path d="M8 4l8 8-8 8" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round"/>
+   </svg>
+
+   <div style="text-align: center; flex: 0 0 auto;">
+     <img src="assets/image32.png" width="280" alt="2) Apply Moves" style="display: block; margin: 0 auto;" />
+     <b style="display: block; margin-top: 8px;">2) Apply Moves</b>
+   </div>
+
+   <svg width="40" height="40" viewBox="0 0 24 24" style="flex-shrink: 0;">
+     <path d="M8 4l8 8-8 8" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round"/>
+   </svg>
+
+   <div style="text-align: center; flex: 0 0 auto;">
+     <img src="assets/image12.png" width="280" alt="3) Solved Cube" style="display: block; margin: 0 auto;" />
+     <b style="display: block; margin-top: 8px;">3) Solved Cube</b>
+   </div>
+
+</div>
+
+## Demo
+
+The demo PDF contains a comprehensive demonstration of the full solving pipeline, showcasing each step of the cube detection and solving process from start to finish.
+
+📄 **[View Demo PDF](assets/Demo.pdf)**
 
 ## Getting Started
 
